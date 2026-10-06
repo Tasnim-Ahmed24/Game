@@ -1,33 +1,31 @@
 const fs = require('fs');
-const path = require('path');
 
 const assets = JSON.parse(fs.readFileSync('assets_b64.json'));
 const boardB64 = assets.board;
 const titleB64 = assets.title;
 const avatarB64 = assets.avatar;
 
-// Default starter curriculum questions for squares 1-20
 const starterQuestions = [
-  { q: "What is 2 + 3?", a: "5" },
-  { q: "Which planet is known as the Red Planet?", a: "Mars" },
-  { q: "How many days are in a leap year?", a: "366" },
-  { q: "What is the capital of France?", a: "Paris" },
-  { q: "What gas do plants absorb from the air?", a: "Carbon dioxide" },
-  { q: "What is 7 multiplied by 8?", a: "56" },
-  { q: "How many continents are there on Earth?", a: "7" },
-  { q: "What is the largest mammal in the world?", a: "Blue whale" },
-  { q: "What is the freezing point of water in Celsius?", a: "0" },
-  { q: "How many sides does an octagon have?", a: "8" },
-  { q: "What is the hardest natural mineral?", a: "Diamond" },
-  { q: "What is 15 divided by 3?", a: "5" },
-  { q: "Which ocean is the largest on Earth?", a: "Pacific" },
-  { q: "What is the color of an emerald gemstone?", a: "Green" },
-  { q: "How many hours are in 2 days?", a: "48" },
-  { q: "What do bees collect to make honey?", a: "Nectar" },
-  { q: "What is 9 squared (9 x 9)?", a: "81" },
-  { q: "Which season comes after winter?", a: "Spring" },
-  { q: "What is the boiling point of water in Celsius?", a: "100" },
-  { q: "What is the name of our home galaxy?", a: "Milky Way" }
+  { q: "What is 2 + 3?", a: "5", options: ["4", "5", "6", "7"] },
+  { q: "Which planet is known as the Red Planet?", a: "Mars", options: ["Venus", "Mars", "Jupiter", "Saturn"] },
+  { q: "How many days are in a leap year?", a: "366", options: ["364", "365", "366", "367"] },
+  { q: "What is the capital of France?", a: "Paris", options: ["Berlin", "Madrid", "Rome", "Paris"] },
+  { q: "What gas do plants absorb from the air?", a: "Carbon dioxide", options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Helium"] },
+  { q: "What is 7 multiplied by 8?", a: "56", options: ["54", "56", "58", "64"] },
+  { q: "How many continents are there on Earth?", a: "7", options: ["5", "6", "7", "8"] },
+  { q: "What is the largest mammal in the world?", a: "Blue whale", options: ["African Elephant", "Blue whale", "Giraffe", "Hippopotamus"] },
+  { q: "What is the freezing point of water in Celsius?", a: "0°C", options: ["-5°C", "0°C", "32°C", "100°C"] },
+  { q: "How many sides does an octagon have?", a: "8", options: ["6", "7", "8", "10"] },
+  { q: "What is the hardest natural mineral?", a: "Diamond", options: ["Gold", "Granite", "Diamond", "Quartz"] },
+  { q: "What is 15 divided by 3?", a: "5", options: ["3", "4", "5", "6"] },
+  { q: "Which ocean is the largest on Earth?", a: "Pacific", options: ["Atlantic", "Indian", "Pacific", "Arctic"] },
+  { q: "What is the color of an emerald gemstone?", a: "Green", options: ["Blue", "Red", "Green", "Yellow"] },
+  { q: "How many hours are in 2 days?", a: "48", options: ["24", "36", "48", "72"] },
+  { q: "What do bees collect to make honey?", a: "Nectar", options: ["Pollen", "Nectar", "Leaves", "Sap"] },
+  { q: "What is 9 squared (9 x 9)?", a: "81", options: ["72", "81", "90", "99"] },
+  { q: "Which season comes after winter?", a: "Spring", options: ["Summer", "Autumn", "Spring", "Monsoon"] },
+  { q: "What is the boiling point of water in Celsius?", a: "100°C", options: ["50°C", "90°C", "100°C", "212°C"] },
+  { q: "What is the name of our home galaxy?", a: "Milky Way", options: ["Andromeda", "Milky Way", "Whirlpool", "Sombrero"] }
 ];
 
 const htmlContent = `<!doctype html>
@@ -36,9 +34,9 @@ const htmlContent = `<!doctype html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snakes and Ladder</title>
-  <meta name="description" content="An interactive 3D Snakes and Ladder learning game featuring local multiplayer, CPU opponent, custom curriculum questions, trophies, dice physics, and Web Audio sound effects.">
+  <meta name="description" content="An interactive 3D Snakes and Ladder learning game featuring local multiplayer, CPU opponent, choose-the-correct-answer quizzes, trophies, dice physics, and Web Audio sound effects.">
   <meta property="og:title" content="Snakes and Ladder">
-  <meta property="og:description" content="An interactive 3D Snakes and Ladder learning game featuring local multiplayer, CPU opponent, custom curriculum questions, trophies, dice physics, and Web Audio sound effects.">
+  <meta property="og:description" content="An interactive 3D Snakes and Ladder learning game featuring local multiplayer, CPU opponent, choose-the-correct-answer quizzes, trophies, dice physics, and Web Audio sound effects.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <style>
@@ -408,7 +406,7 @@ const htmlContent = `<!doctype html>
 
     .single-editor-fields {
       display: grid;
-      grid-template-columns: 120px 1fr 1fr;
+      grid-template-columns: 100px 1.2fr 1fr 1.2fr;
       gap: 10px;
       margin-bottom: 12px;
     }
@@ -559,7 +557,6 @@ const htmlContent = `<!doctype html>
       position: relative;
       width: 100%;
       height: 100%;
-      /* Transparent hit area preserving baked board artwork */
       background: rgba(255, 255, 255, 0.001);
     }
 
@@ -840,17 +837,6 @@ const htmlContent = `<!doctype html>
       transition: transform 1s cubic-bezier(0.2, 0.8, 0.3, 1);
     }
 
-    .dice-cube.rolling {
-      animation: rollSpin 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-    }
-
-    @keyframes rollSpin {
-      0% { transform: rotateX(-12deg) rotateY(16deg); }
-      30% { transform: rotateX(720deg) rotateY(360deg); }
-      60% { transform: rotateX(1080deg) rotateY(720deg); }
-      100% { /* Set by JS */ }
-    }
-
     .dice-face {
       position: absolute;
       width: 76px;
@@ -991,15 +977,15 @@ const htmlContent = `<!doctype html>
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     }
 
-    /* QUESTION MODAL DIALOG */
+    /* QUESTION MODAL DIALOG - CHOOSE THE CORRECT ANSWER */
     .modal-backdrop {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(3, 10, 28, 0.85);
-      backdrop-filter: blur(4px);
+      background: rgba(3, 10, 28, 0.88);
+      backdrop-filter: blur(5px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -1009,12 +995,12 @@ const htmlContent = `<!doctype html>
 
     .modal-window {
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
       background: linear-gradient(165deg, #0d3875 0%, #061e47 100%);
-      border: 3px solid #40e8ff;
-      border-radius: 20px;
+      border: 3.5px solid #40e8ff;
+      border-radius: 24px;
       padding: 24px;
-      box-shadow: 0 0 35px rgba(64, 232, 255, 0.5), 0 16px 36px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 0 40px rgba(64, 232, 255, 0.5), 0 20px 40px rgba(0, 0, 0, 0.8);
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -1027,37 +1013,138 @@ const htmlContent = `<!doctype html>
     }
 
     .modal-question-text {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 19px;
+      font-weight: 800;
       color: #ffffff;
       line-height: 1.4;
-      background: rgba(4, 15, 38, 0.7);
-      border: 1px solid rgba(64, 232, 255, 0.3);
-      padding: 14px;
-      border-radius: 12px;
+      background: rgba(4, 15, 38, 0.75);
+      border: 1.5px solid rgba(64, 232, 255, 0.35);
+      padding: 16px;
+      border-radius: 14px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
     }
 
-    .modal-answer-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 2px solid #40e8ff;
-      background: #041433;
+    .modal-instruction {
+      font-size: 14px;
+      font-weight: 800;
+      color: #67e8f9;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Multiple Choice Grid */
+    .modal-choices-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 2px;
+    }
+
+    .choice-btn {
+      background: linear-gradient(145deg, #0a2e66 0%, #051a3d 100%);
+      border: 2px solid rgba(64, 232, 255, 0.4);
+      border-radius: 14px;
+      padding: 14px 14px;
       color: #ffffff;
       font-size: 16px;
-      font-family: inherit;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      position: relative;
+      user-select: none;
     }
 
-    .modal-answer-input:focus {
-      outline: none;
-      border-color: #ffd85b;
-      box-shadow: 0 0 10px rgba(255, 216, 91, 0.6);
+    .choice-btn:hover {
+      border-color: #40e8ff;
+      background: linear-gradient(145deg, #10428d 0%, #092857 100%);
+      transform: translateY(-2px);
+    }
+
+    .choice-btn:focus-visible {
+      outline: 3px solid #ffd85b;
+      outline-offset: 2px;
+    }
+
+    .choice-btn.selected {
+      border-color: #ffd85b !important;
+      background: linear-gradient(145deg, #1653a6 0%, #0c3672 100%) !important;
+      box-shadow: 0 0 16px rgba(255, 216, 91, 0.7) !important;
+      outline: 2px solid #ffd85b;
+    }
+
+    .choice-btn.is-correct {
+      border-color: #34d399 !important;
+      background: linear-gradient(145deg, #057a55 0%, #03543f 100%) !important;
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.9) !important;
+    }
+
+    .choice-btn.is-wrong {
+      border-color: #f87171 !important;
+      background: linear-gradient(145deg, #991b1b 0%, #7f1d1d 100%) !important;
+      box-shadow: 0 0 16px rgba(248, 113, 113, 0.7) !important;
+      animation: shakeChoice 0.35s ease-in-out;
+    }
+
+    @keyframes shakeChoice {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    .choice-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(64, 232, 255, 0.2);
+      border: 1.5px solid #40e8ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      color: #ffd85b;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .choice-btn.selected .choice-letter {
+      background: #ffd85b;
+      color: #07224d;
+      border-color: #ffffff;
+    }
+
+    .choice-btn.is-correct .choice-letter {
+      background: #34d399;
+      color: #064e3b;
+      border-color: #ffffff;
+    }
+
+    .choice-btn.is-wrong .choice-letter {
+      background: #f87171;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    .choice-text {
+      flex: 1;
+      word-break: break-word;
     }
 
     .modal-actions-row {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
       gap: 12px;
+      margin-top: 4px;
     }
 
     .modal-feedback {
@@ -1067,6 +1154,7 @@ const htmlContent = `<!doctype html>
     }
     .modal-feedback.correct { color: #34d399; }
     .modal-feedback.incorrect { color: #f87171; }
+    .modal-feedback.warn { color: #f59e0b; }
 
     /* FULL-SCREEN VICTORY OVERLAY */
     .victory-overlay {
@@ -1187,6 +1275,15 @@ const htmlContent = `<!doctype html>
       }
     }
 
+    @media (max-width: 540px) {
+      .modal-choices-grid {
+        grid-template-columns: 1fr;
+      }
+      .single-editor-fields {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 480px) {
       .app-header {
         padding: 8px 12px;
@@ -1207,9 +1304,6 @@ const htmlContent = `<!doctype html>
         grid-template-columns: 1fr;
       }
       .bulk-textareas-grid {
-        grid-template-columns: 1fr;
-      }
-      .single-editor-fields {
         grid-template-columns: 1fr;
       }
       .board-frame-container {
@@ -1313,8 +1407,12 @@ const htmlContent = `<!doctype html>
                 <input type="text" id="singleQInput" class="text-input" placeholder="Enter question" />
               </div>
               <div>
-                <label for="singleAInput" style="font-size: 13px; font-weight: 700; color: #aae0ff; display: block; margin-bottom: 4px;">Exact Answer</label>
-                <input type="text" id="singleAInput" class="text-input" placeholder="Enter exact answer" />
+                <label for="singleAInput" style="font-size: 13px; font-weight: 700; color: #aae0ff; display: block; margin-bottom: 4px;">Correct Answer</label>
+                <input type="text" id="singleAInput" class="text-input" placeholder="Correct choice" />
+              </div>
+              <div>
+                <label for="singleDistractorsInput" style="font-size: 13px; font-weight: 700; color: #aae0ff; display: block; margin-bottom: 4px;">Other Choices</label>
+                <input type="text" id="singleDistractorsInput" class="text-input" placeholder="e.g. Venus, Jupiter, Saturn" />
               </div>
             </div>
             <div style="display: flex; gap: 10px;">
@@ -1431,7 +1529,7 @@ const htmlContent = `<!doctype html>
             <!-- Glowing Move Spaces Button -->
             <button id="moveSpacesBtn" class="btn-move-spaces">Move 1 space</button>
 
-            <!-- Player List & Trophies -->
+            <!-- Player List & Trophies (Out of 15) -->
             <div id="playerListContainer" class="player-list-container"></div>
           </div>
 
@@ -1446,15 +1544,17 @@ const htmlContent = `<!doctype html>
 
   </main>
 
-  <!-- QUESTION MODAL DIALOG -->
+  <!-- QUESTION MODAL DIALOG - CHOOSE THE CORRECT ANSWER -->
   <div id="questionModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-window">
       <h2 id="modalTitle">Square 1 question</h2>
       <div id="modalQuestionText" class="modal-question-text"></div>
-      <div>
-        <label for="modalAnswerInput" class="sr-only">Your answer</label>
-        <input type="text" id="modalAnswerInput" class="modal-answer-input" placeholder="Type your answer here..." autocomplete="off" />
+      
+      <div class="modal-instruction">✨ Choose the correct answer:</div>
+      <div id="modalChoicesContainer" class="modal-choices-grid" role="radiogroup" aria-label="Answer choices">
+        <!-- Multiple Choice Buttons Rendered Dynamically -->
       </div>
+
       <div id="modalFeedback" class="modal-feedback" aria-live="polite"></div>
       <div class="modal-actions-row">
         <button id="closeModalBtn" class="btn-secondary" style="border-color: #64748b;">Close</button>
@@ -1497,10 +1597,6 @@ const htmlContent = `<!doctype html>
     const SNAKES = { 11: 10, 13: 8, 15: 6 };
 
     // Serpentine Grid Layout: 5 columns x 4 rows = 20 squares
-    // Row 1 (top): 20, 19, 18, 17, 16
-    // Row 2: 11, 12, 13, 14, 15
-    // Row 3: 10, 9, 8, 7, 6
-    // Row 4 (bottom): 1, 2, 3, 4, 5
     const GRID_SQUARES = [
       [20, 19, 18, 17, 16],
       [11, 12, 13, 14, 15],
@@ -1508,13 +1604,6 @@ const htmlContent = `<!doctype html>
       [1, 2, 3, 4, 5]
     ];
 
-    // Dice Face Rotations
-    // Face 1: front (rotateX(0), rotateY(0))
-    // Face 2: bottom (rotateX(90), rotateY(0))
-    // Face 3: right (rotateX(0), rotateY(-90))
-    // Face 4: left (rotateX(0), rotateY(90))
-    // Face 5: top (rotateX(-90), rotateY(0))
-    // Face 6: back (rotateX(0), rotateY(180))
     const DICE_FACE_ROTATIONS = {
       1: { x: 0, y: 0 },
       2: { x: 90, y: 0 },
@@ -1536,6 +1625,7 @@ const htmlContent = `<!doctype html>
       soundEnabled: true,
       questions: [],
       openSquare: null,
+      selectedChoice: null,
       gameOver: false,
       cpuTimeoutId: null
     };
@@ -1645,6 +1735,7 @@ const htmlContent = `<!doctype html>
       singleSquareSelect: document.getElementById('singleSquareSelect'),
       singleQInput: document.getElementById('singleQInput'),
       singleAInput: document.getElementById('singleAInput'),
+      singleDistractorsInput: document.getElementById('singleDistractorsInput'),
       saveSingleSquareBtn: document.getElementById('saveSingleSquareBtn'),
       clearSingleSquareBtn: document.getElementById('clearSingleSquareBtn'),
       singleStatusMsg: document.getElementById('singleStatusMsg'),
@@ -1665,7 +1756,7 @@ const htmlContent = `<!doctype html>
       questionModal: document.getElementById('questionModal'),
       modalTitle: document.getElementById('modalTitle'),
       modalQuestionText: document.getElementById('modalQuestionText'),
-      modalAnswerInput: document.getElementById('modalAnswerInput'),
+      modalChoicesContainer: document.getElementById('modalChoicesContainer'),
       modalFeedback: document.getElementById('modalFeedback'),
       checkAnswerBtn: document.getElementById('checkAnswerBtn'),
       closeModalBtn: document.getElementById('closeModalBtn'),
@@ -1677,7 +1768,6 @@ const htmlContent = `<!doctype html>
       toastNotice: document.getElementById('toastNotice')
     };
 
-    // Helper: Escape text for safe rendering
     function escapeText(str) {
       if (!str) return '';
       return String(str)
@@ -1687,14 +1777,12 @@ const htmlContent = `<!doctype html>
         .replace(/"/g, '&quot;');
     }
 
-    // Helper: Screen reader announcement
     function announce(text) {
       if (elements.srLiveAnnouncer) {
         elements.srLiveAnnouncer.textContent = text;
       }
     }
 
-    // Helper: Toast message
     let toastTimeout = null;
     function showToast(msg) {
       elements.toastNotice.textContent = msg;
@@ -1705,46 +1793,123 @@ const htmlContent = `<!doctype html>
       }, 3000);
     }
 
-    // Initialize Questions from localStorage or Defaults
+    // Default Starters
+    const defaultStarters = ${JSON.stringify(starterQuestions)};
+
+    // Initialize Questions
     function loadQuestions() {
       state.questions = [];
       for (let i = 0; i < 20; i++) {
-        state.questions.push({ q: '', a: '' });
+        state.questions.push({ q: '', a: '', options: [] });
       }
+
       try {
         const saved = localStorage.getItem('snakeTrailQuestions');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
+          if (Array.isArray(parsed) && parsed.length > 0) {
             parsed.forEach((item, idx) => {
               if (idx < 20 && item && typeof item === 'object') {
-                state.questions[idx] = {
-                  q: String(item.q || '').trim(),
-                  a: String(item.a || '').trim()
-                };
+                const qText = String(item.q || '').trim();
+                const aText = String(item.a || '').trim();
+                let opts = [];
+                if (Array.isArray(item.options) && item.options.length >= 2) {
+                  opts = item.options.map(o => String(o || '').trim()).filter(Boolean);
+                }
+                state.questions[idx] = { q: qText, a: aText, options: opts };
               }
             });
-            return;
+            // If at least one question has content, return
+            if (state.questions.some(q => q.q)) return;
           }
         }
       } catch (e) {}
 
       // Fallback to starter curriculum
-      const starters = ${JSON.stringify(starterQuestions)};
-      starters.forEach((item, idx) => {
+      defaultStarters.forEach((item, idx) => {
         if (idx < 20) {
-          state.questions[idx] = { q: item.q, a: item.a };
+          state.questions[idx] = { q: item.q, a: item.a, options: [...item.options] };
         }
       });
-      try {
-        localStorage.setItem('snakeTrailQuestions', JSON.stringify(state.questions));
-      } catch (e) {}
+      saveQuestions();
     }
 
     function saveQuestions() {
       try {
         localStorage.setItem('snakeTrailQuestions', JSON.stringify(state.questions));
       } catch (e) {}
+    }
+
+    // Build Multiple-Choice Options for a Question
+    function getQuestionChoices(rec, allQuestions) {
+      const correct = (rec.a || '').trim();
+      let choices = [];
+
+      if (Array.isArray(rec.options) && rec.options.length >= 2) {
+        choices = rec.options.map(o => String(o).trim()).filter(Boolean);
+      }
+
+      // If less than 4 choices, fill with distractors
+      if (choices.length < 4) {
+        if (!choices.some(c => c.toLowerCase() === correct.toLowerCase())) {
+          choices.unshift(correct);
+        }
+
+        // Try numeric distractors if numeric
+        const numVal = parseFloat(correct);
+        if (!isNaN(numVal) && String(numVal) === correct) {
+          const offsets = [-2, -1, 1, 2, 3, 4, -3];
+          for (const off of offsets) {
+            const candidate = String(numVal + off);
+            if (!choices.includes(candidate)) {
+              choices.push(candidate);
+            }
+            if (choices.length >= 4) break;
+          }
+        }
+
+        // Add answers from other questions
+        for (const otherQ of allQuestions) {
+          if (choices.length >= 4) break;
+          const otherAns = (otherQ.a || '').trim();
+          if (otherAns && !choices.some(c => c.toLowerCase() === otherAns.toLowerCase())) {
+            choices.push(otherAns);
+          }
+        }
+
+        // Fallbacks
+        const fallbacks = ["None of these", "All of these", "True", "False"];
+        for (const fb of fallbacks) {
+          if (choices.length >= 4) break;
+          if (!choices.some(c => c.toLowerCase() === fb.toLowerCase())) {
+            choices.push(fb);
+          }
+        }
+      }
+
+      // Ensure correct answer is always present
+      if (!choices.some(c => c.toLowerCase() === correct.toLowerCase())) {
+        choices[0] = correct;
+      }
+
+      // Deduplicate
+      const uniqueChoices = [];
+      for (const ch of choices) {
+        if (!uniqueChoices.some(u => u.toLowerCase() === ch.toLowerCase())) {
+          uniqueChoices.push(ch);
+        }
+      }
+
+      // Shuffle so correct answer position varies
+      const shuffled = [...uniqueChoices];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = shuffled[i];
+        shuffled[i] = shuffled[j];
+        shuffled[j] = temp;
+      }
+
+      return shuffled.slice(0, 4);
     }
 
     // Initialize Saved Names
@@ -1825,9 +1990,13 @@ const htmlContent = `<!doctype html>
 
     function updateSingleSquareInputs() {
       const sqNum = parseInt(elements.singleSquareSelect.value, 10);
-      const rec = state.questions[sqNum - 1] || { q: '', a: '' };
+      const rec = state.questions[sqNum - 1] || { q: '', a: '', options: [] };
       elements.singleQInput.value = rec.q;
       elements.singleAInput.value = rec.a;
+
+      // Extract other choices (distractors)
+      const distractors = (rec.options || []).filter(o => o.toLowerCase() !== (rec.a || '').toLowerCase());
+      elements.singleDistractorsInput.value = distractors.join(', ');
       elements.singleStatusMsg.textContent = '';
     }
 
@@ -1907,7 +2076,7 @@ const htmlContent = `<!doctype html>
           name: name,
           isCpu: isCpu && i === 1,
           color: color,
-          position: 0, // 0 = Starting Dock
+          position: 0,
           trophies: 0,
           earnedSquares: new Set()
         });
@@ -1982,7 +2151,6 @@ const htmlContent = `<!doctype html>
       const dockSlotRect = elements.dockSlot.getBoundingClientRect();
       if (!boardRect.width) return;
 
-      // Group players by position
       const posMap = {};
       state.players.forEach(p => {
         if (!posMap[p.position]) posMap[p.position] = [];
@@ -2001,11 +2169,9 @@ const htmlContent = `<!doctype html>
         let baseCenterY = 0;
 
         if (pos === 0) {
-          // Starting Dock
           baseCenterX = dockSlotRect.left + dockSlotRect.width / 2 - boardRect.left;
           baseCenterY = dockSlotRect.top + dockSlotRect.height / 2 - boardRect.top;
         } else {
-          // Find Square on Board
           const sqDiv = elements.boardSquaresGrid.querySelector('[data-square="' + pos + '"]');
           if (sqDiv) {
             const sqRect = sqDiv.getBoundingClientRect();
@@ -2014,35 +2180,29 @@ const htmlContent = `<!doctype html>
           }
         }
 
-        // Clustering Offsets
         group.forEach((p, index) => {
           let offsetX = 0;
           let offsetY = 0;
 
           if (groupCount === 1) {
-            // Lone token: exactly 0 offset
             offsetX = 0;
             offsetY = 0;
           } else if (groupCount === 2) {
-            // Left and Right of center
             const dist = tokenSize * 0.45;
             offsetX = index === 0 ? -dist : dist;
             offsetY = 0;
           } else if (groupCount === 3) {
-            // Triangle: two above, one below
             const dist = tokenSize * 0.42;
             if (index === 0) { offsetX = -dist; offsetY = -dist * 0.7; }
             else if (index === 1) { offsetX = dist; offsetY = -dist * 0.7; }
             else { offsetX = 0; offsetY = dist * 0.7; }
           } else if (groupCount === 4) {
-            // 2x2 Cluster
             const dist = tokenSize * 0.42;
             if (index === 0) { offsetX = -dist; offsetY = -dist; }
             else if (index === 1) { offsetX = dist; offsetY = -dist; }
             else if (index === 2) { offsetX = -dist; offsetY = dist; }
             else { offsetX = dist; offsetY = dist; }
           } else if (groupCount === 5) {
-            // 4 corners + center
             const dist = tokenSize * 0.46;
             if (index === 0) { offsetX = -dist; offsetY = -dist; }
             else if (index === 1) { offsetX = dist; offsetY = -dist; }
@@ -2074,11 +2234,9 @@ const htmlContent = `<!doctype html>
       elements.turnStatus.textContent = player.name + ' is rolling...';
       announce(player.name + ' is rolling the dice');
 
-      // Random 1 to 6
       const rollVal = Math.floor(Math.random() * 6) + 1;
       state.rolledValue = rollVal;
 
-      // Animate 3D Cube: multiple spins landing on tilt
       const targetRot = DICE_FACE_ROTATIONS[rollVal];
       const extraSpinX = 720 + (Math.floor(Math.random() * 2) * 360);
       const extraSpinY = 720 + (Math.floor(Math.random() * 2) * 360);
@@ -2116,7 +2274,6 @@ const htmlContent = `<!doctype html>
       const currentPos = player.position;
       const targetPos = currentPos + spaces;
 
-      // Overshoot Rule
       if (targetPos > 20) {
         sounds.blocked();
         elements.turnStatus.textContent = player.name + ' needs an exact roll. The token stays put.';
@@ -2126,7 +2283,6 @@ const htmlContent = `<!doctype html>
         return;
       }
 
-      // Step-by-step advance
       const tokenNode = document.getElementById('token_p' + player.id);
       for (let s = 1; s <= spaces; s++) {
         player.position = currentPos + s;
@@ -2141,13 +2297,11 @@ const htmlContent = `<!doctype html>
 
       await delay(200);
 
-      // Check Win Condition Reaching 20 Exactly
       if (player.position === 20) {
         declareVictory(player, 'reached square 20 exactly!');
         return;
       }
 
-      // Check Ladders
       if (LADDERS[player.position]) {
         const ladderDest = LADDERS[player.position];
         elements.turnStatus.textContent = 'Ladder! ' + player.name + ' climbs to square ' + ladderDest + '.';
@@ -2157,15 +2311,12 @@ const htmlContent = `<!doctype html>
         player.position = ladderDest;
         positionAllTokens();
         await delay(1200);
-      }
-      // Check Snakes
-      else if (SNAKES[player.position]) {
+      } else if (SNAKES[player.position]) {
         const snakeDest = SNAKES[player.position];
         elements.turnStatus.textContent = 'Oh no! A snake bites ' + player.name + ' and slides the token down to square ' + snakeDest + '.';
         announce('Oh no! A snake bites ' + player.name + ' and slides down to square ' + snakeDest);
         sounds.snake();
 
-        // Show crying emoji overlay briefly
         elements.snakeCryOverlay.classList.add('show');
         await delay(900);
         elements.snakeCryOverlay.classList.remove('show');
@@ -2178,7 +2329,6 @@ const htmlContent = `<!doctype html>
       endTurn();
     }
 
-    // End Turn & Pass to Next Player
     function endTurn() {
       state.busy = false;
       elements.diceBtn.disabled = false;
@@ -2200,11 +2350,11 @@ const htmlContent = `<!doctype html>
       }
     }
 
-    // Question Button Click
+    // Question Button Click - Multiple Choice ("Choose the Correct Answer")
     function onQuestionBtnClick(sqNum) {
       if (state.busy || state.gameOver) return;
       const player = state.players[state.activeIndex];
-      if (player && player.isCpu) return; // Only human players can answer questions
+      if (player && player.isCpu) return;
 
       const rec = state.questions[sqNum - 1];
       if (!rec || !rec.q.trim()) {
@@ -2214,16 +2364,65 @@ const htmlContent = `<!doctype html>
       }
 
       state.openSquare = sqNum;
+      state.selectedChoice = null;
+
       elements.modalTitle.textContent = 'Square ' + sqNum + ' question';
       elements.modalQuestionText.textContent = rec.q;
-      elements.modalAnswerInput.value = '';
       elements.modalFeedback.textContent = '';
       elements.modalFeedback.className = 'modal-feedback';
+
+      // Render the 4 Choices
+      const choices = getQuestionChoices(rec, state.questions);
+      const letters = ['A', 'B', 'C', 'D'];
+      elements.modalChoicesContainer.innerHTML = '';
+
+      choices.forEach((choice, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice-btn';
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', 'false');
+        btn.setAttribute('data-choice', choice);
+        btn.setAttribute('aria-label', 'Option ' + letters[idx] + ': ' + choice);
+
+        const badge = document.createElement('span');
+        badge.className = 'choice-letter';
+        badge.textContent = letters[idx];
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'choice-text';
+        textSpan.textContent = choice;
+
+        btn.appendChild(badge);
+        btn.appendChild(textSpan);
+
+        btn.addEventListener('click', () => {
+          selectChoice(btn, choice);
+        });
+
+        elements.modalChoicesContainer.appendChild(btn);
+      });
+
       elements.questionModal.style.display = 'flex';
-      elements.modalAnswerInput.focus();
+      const firstBtn = elements.modalChoicesContainer.querySelector('.choice-btn');
+      if (firstBtn) firstBtn.focus();
     }
 
-    // Check Question Answer & Award Trophy
+    // Select a choice
+    function selectChoice(btn, choice) {
+      state.selectedChoice = choice;
+      const allBtns = elements.modalChoicesContainer.querySelectorAll('.choice-btn');
+      allBtns.forEach(b => {
+        b.classList.remove('selected', 'is-wrong');
+        b.setAttribute('aria-checked', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-checked', 'true');
+      elements.modalFeedback.textContent = '';
+      elements.modalFeedback.className = 'modal-feedback';
+    }
+
+    // Check Multiple-Choice Answer
     function checkAnswer() {
       if (state.openSquare === null) return;
       const player = state.players[state.activeIndex];
@@ -2233,12 +2432,23 @@ const htmlContent = `<!doctype html>
       const rec = state.questions[sqNum - 1];
       if (!rec) return;
 
-      // Normalization: trim outer whitespace, collapse repeated spaces, case-insensitive
-      const normInput = elements.modalAnswerInput.value.trim().replace(/\\s+/g, ' ').toLowerCase();
-      const normTarget = (rec.a || '').trim().replace(/\\s+/g, ' ').toLowerCase();
+      if (!state.selectedChoice) {
+        elements.modalFeedback.textContent = 'Please choose an answer first!';
+        elements.modalFeedback.className = 'modal-feedback warn';
+        return;
+      }
 
-      if (normInput === normTarget && normTarget.length > 0) {
-        // Correct answer!
+      const selected = state.selectedChoice.trim().toLowerCase();
+      const correct = (rec.a || '').trim().toLowerCase();
+      const selectedBtn = elements.modalChoicesContainer.querySelector('.choice-btn.selected');
+
+      if (selected === correct) {
+        // Correct Answer!
+        if (selectedBtn) {
+          selectedBtn.classList.remove('selected');
+          selectedBtn.classList.add('is-correct');
+        }
+
         if (player.earnedSquares.has(sqNum)) {
           elements.modalFeedback.textContent = 'Correct! You already earned the trophy for this square.';
           elements.modalFeedback.className = 'modal-feedback correct';
@@ -2262,9 +2472,13 @@ const htmlContent = `<!doctype html>
           }
         }
       } else {
-        // Wrong answer
+        // Wrong Answer
         sounds.wrong();
-        elements.modalFeedback.textContent = 'Not quite—try again. Check spelling and spacing.';
+        if (selectedBtn) {
+          selectedBtn.classList.remove('selected');
+          selectedBtn.classList.add('is-wrong');
+        }
+        elements.modalFeedback.textContent = 'Not quite—try again! Choose another option.';
         elements.modalFeedback.className = 'modal-feedback incorrect';
       }
     }
@@ -2282,7 +2496,6 @@ const htmlContent = `<!doctype html>
       elements.victoryOverlay.style.display = 'flex';
       announce('Victory! ' + player.name + ' wins by ' + reason);
 
-      // Generate 90 Multicolored Confetti Pieces
       elements.confettiContainer.innerHTML = '';
       const colors = ['#ffd85b', '#40e8ff', '#ff5d66', '#10b981', '#a855f7', '#f97316'];
       for (let i = 0; i < 90; i++) {
@@ -2298,7 +2511,6 @@ const htmlContent = `<!doctype html>
       }
     }
 
-    // Restart Current Game (Preserves saved names and questions)
     function restartGame() {
       clearTimeout(state.cpuTimeoutId);
       elements.victoryOverlay.style.display = 'none';
@@ -2310,7 +2522,6 @@ const htmlContent = `<!doctype html>
       announce('Game restarted');
     }
 
-    // Return to Settings Screen (Preserves saved names and questions)
     function returnToSettings() {
       clearTimeout(state.cpuTimeoutId);
       elements.victoryOverlay.style.display = 'none';
@@ -2326,7 +2537,6 @@ const htmlContent = `<!doctype html>
 
     // EVENT LISTENERS
 
-    // Sound Toggle
     elements.soundToggleBtn.addEventListener('click', () => {
       state.soundEnabled = !state.soundEnabled;
       elements.soundToggleBtn.setAttribute('aria-pressed', state.soundEnabled ? 'true' : 'false');
@@ -2337,7 +2547,6 @@ const htmlContent = `<!doctype html>
       }
     });
 
-    // Mode Selection Buttons
     elements.modeCpuBtn.addEventListener('click', () => {
       state.mode = 'cpu';
       elements.modeCpuBtn.classList.add('active');
@@ -2362,7 +2571,6 @@ const htmlContent = `<!doctype html>
       renderPlayerInputs();
     });
 
-    // Player Count Buttons (2 to 5)
     elements.playerCountGroup.querySelectorAll('.count-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         elements.playerCountGroup.querySelectorAll('.count-btn').forEach(b => {
@@ -2376,7 +2584,6 @@ const htmlContent = `<!doctype html>
       });
     });
 
-    // Save Player Names Button
     elements.saveNamesBtn.addEventListener('click', () => {
       const isCpu = state.mode === 'cpu';
       const count = isCpu ? 2 : state.playerCount;
@@ -2424,7 +2631,18 @@ const htmlContent = `<!doctype html>
       }
 
       for (let i = 0; i < qLines.length; i++) {
-        state.questions[i] = { q: qLines[i], a: aLines[i] };
+        const aRaw = aLines[i];
+        let correctAns = aRaw;
+        let opts = [];
+
+        // Support piped options: "Correct | Wrong1 | Wrong2 | Wrong3"
+        if (aRaw.includes('|')) {
+          const parts = aRaw.split('|').map(p => p.trim()).filter(Boolean);
+          correctAns = parts[0] || '';
+          opts = parts;
+        }
+
+        state.questions[i] = { q: qLines[i], a: correctAns, options: opts };
       }
 
       saveQuestions();
@@ -2436,16 +2654,29 @@ const htmlContent = `<!doctype html>
       elements.bulkStatusMsg.className = 'editor-status-msg success';
     });
 
-    // Single Square Select Change
     elements.singleSquareSelect.addEventListener('change', updateSingleSquareInputs);
 
-    // Save Single Square
+    // Save Single Square with Distractors
     elements.saveSingleSquareBtn.addEventListener('click', () => {
       const sqNum = parseInt(elements.singleSquareSelect.value, 10);
       const q = elements.singleQInput.value.trim();
       const a = elements.singleAInput.value.trim();
+      const distractorsRaw = elements.singleDistractorsInput.value.trim();
 
-      state.questions[sqNum - 1] = { q: q, a: a };
+      let opts = [];
+      if (a) {
+        opts.push(a);
+      }
+      if (distractorsRaw) {
+        const parts = distractorsRaw.split(',').map(p => p.trim()).filter(Boolean);
+        parts.forEach(p => {
+          if (!opts.some(o => o.toLowerCase() === p.toLowerCase())) {
+            opts.push(p);
+          }
+        });
+      }
+
+      state.questions[sqNum - 1] = { q: q, a: a, options: opts };
       saveQuestions();
       refreshQuestionIcons();
       sounds.save();
@@ -2454,12 +2685,12 @@ const htmlContent = `<!doctype html>
       elements.singleStatusMsg.className = 'editor-status-msg success';
     });
 
-    // Clear Single Square
     elements.clearSingleSquareBtn.addEventListener('click', () => {
       const sqNum = parseInt(elements.singleSquareSelect.value, 10);
-      state.questions[sqNum - 1] = { q: '', a: '' };
+      state.questions[sqNum - 1] = { q: '', a: '', options: [] };
       elements.singleQInput.value = '';
       elements.singleAInput.value = '';
+      elements.singleDistractorsInput.value = '';
       saveQuestions();
       refreshQuestionIcons();
       sounds.save();
@@ -2468,7 +2699,6 @@ const htmlContent = `<!doctype html>
       elements.singleStatusMsg.className = 'editor-status-msg success';
     });
 
-    // Start Game Button
     elements.startGameBtn.addEventListener('click', () => {
       getAudioContext();
       initPlayers();
@@ -2481,18 +2711,14 @@ const htmlContent = `<!doctype html>
       elements.turnStatus.textContent = state.players[0].name + "'s turn. Click the dice to roll.";
       announce('Game started. ' + state.players[0].name + "'s turn.");
 
-      // Position tokens once layout renders
       requestAnimationFrame(positionAllTokens);
     });
 
-    // Top Navigation Buttons
     elements.backToSettingsBtn.addEventListener('click', returnToSettings);
     elements.restartGameBtn.addEventListener('click', restartGame);
 
-    // Dice Button Click
     elements.diceBtn.addEventListener('click', rollDiceAction);
 
-    // Move Spaces Button Click
     elements.moveSpacesBtn.addEventListener('click', () => {
       const player = state.players[state.activeIndex];
       if (player && state.rolledValue > 0) {
@@ -2500,37 +2726,50 @@ const htmlContent = `<!doctype html>
       }
     });
 
-    // Modal Events
     elements.checkAnswerBtn.addEventListener('click', checkAnswer);
     elements.closeModalBtn.addEventListener('click', () => {
       elements.questionModal.style.display = 'none';
       state.openSquare = null;
+      state.selectedChoice = null;
     });
 
-    // Modal Keyboard Navigation: Enter submits, Escape closes
-    elements.modalAnswerInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        checkAnswer();
-      }
-    });
-
+    // Keyboard Navigation for Multiple Choice
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && elements.questionModal.style.display === 'flex') {
-        elements.questionModal.style.display = 'none';
-        state.openSquare = null;
+      if (elements.questionModal.style.display === 'flex') {
+        if (e.key === 'Escape') {
+          elements.questionModal.style.display = 'none';
+          state.openSquare = null;
+          state.selectedChoice = null;
+          return;
+        }
+
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          checkAnswer();
+          return;
+        }
+
+        // Keys 1, 2, 3, 4 or A, B, C, D to quickly select choices
+        const choices = elements.modalChoicesContainer.querySelectorAll('.choice-btn');
+        let selectIdx = -1;
+        if (e.key === '1' || e.key.toLowerCase() === 'a') selectIdx = 0;
+        else if (e.key === '2' || e.key.toLowerCase() === 'b') selectIdx = 1;
+        else if (e.key === '3' || e.key.toLowerCase() === 'c') selectIdx = 2;
+        else if (e.key === '4' || e.key.toLowerCase() === 'd') selectIdx = 3;
+
+        if (selectIdx >= 0 && choices[selectIdx]) {
+          choices[selectIdx].click();
+        }
       }
     });
 
-    // Play Again Button in Victory
     elements.playAgainBtn.addEventListener('click', restartGame);
 
-    // Window Resize -> Recalculate token positions
     window.addEventListener('resize', () => {
       requestAnimationFrame(positionAllTokens);
     });
 
-    // INITIALIZATION RUN
+    // Initialize
     loadSavedNames();
     loadQuestions();
     renderPlayerInputs();
@@ -2542,9 +2781,12 @@ const htmlContent = `<!doctype html>
 </body>
 </html>`;
 
-// Write to suggested standalone file and to index.html
 fs.writeFileSync('snake-learning-game-latest-edition.html', htmlContent);
 console.log('Saved snake-learning-game-latest-edition.html, size:', htmlContent.length);
 
 fs.writeFileSync('index.html', htmlContent);
 console.log('Saved index.html, size:', htmlContent.length);
+
+// Also update build_full_game.cjs so future runs retain multiple-choice
+fs.writeFileSync('build_full_game.cjs', fs.readFileSync('build_full_game_mc.cjs', 'utf8'));
+console.log('Updated build_full_game.cjs');
